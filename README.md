@@ -2,13 +2,12 @@
 ### Fall 2024. Homework Assignment 1
 ### Due: 09/27/2024 11:59PM MDT
 ### Team Assignment
-This first assignment is a basic Linux get-to-know that will provide the necessary basis for the following assignments, in particular by training everyone in C to get everyone up to speed with this programming language. The
-assignment is to be done in teams of two students. However, your individual performance will be evaluated.
+This first assignment is a basic Linux get-to-know that will provide the necessary basis for the following assignments, in particular by training everyone in C to get everyone up to speed with this programming language. The assignment is to be done in teams of two students. However, your individual performance will be evaluated.
 For this assignment, you have to turn in an archive containing:
-• the source file head.c,
-• the source file tail.c,
-• the source file findlocation.c and
-• your report (as a PDF) covering all tasks in all sections of this assignment.
+- the source file head.c,
+- the source file tail.c,
+- the source file findlocation.c and
+- your report (as a PDF) covering all tasks in all sections of this assignment.
 The Linux manual pages, which you can open using the shell command e.g. man 2 mmap, are your friend. Read
 and understand them in their entirety for all system calls that are used in the programs to be written in this assignment.
 None of the programs is supposed to use printf, fprintf or fputs, as these are level-3 calls. You
@@ -16,45 +15,32 @@ can use strerror, as a special exception. You might want to start with the imple
 int my_file_puts(int fd, const char *s); which you base on the write system call (and your
 implementation of a function performing the task of strlen).
 ## 1 Linux ssh Login
+
 This first part of the assignment is really easy: you are just required to access the machine dandelion at
 dandelion.cs.utep.edu through ssh on port 22. You will receive individualized email with your username
 and login credentials for dandelion. Using ssh on some Linux/MacOS/FreeBSD/whatever machine or Putty on
 Windows and using the login and private key you will be sent, access the machine. The following rules govern the
 use of the dandelion system:
-• The system runs fail2ban. If you fail to authenticate correctly too many times, your IP will get banned for
-24 hours. If you need to get unbanned, send email (urgent cases only).
-• Any attempt at exploiting the system for the purpose of sending spam, mining bitcoins or “just” hacking
-the UTEP network or any other purpose which is not related to this class will result in a notice to UTEP
-and other consequences, which might include you failing this class!
-• If you f**k up on the system (have a process that takes all memory, uses all CPUs, writes to disc like crazy etc.)
-but it’s just that you happen to do that inadvertedly, no biggie! Just send email as soon as possible.
-• Never take the system’s resources for granted. If the computer needs rebooting or there’s a power failure,
-your data/processes etc. may just go away. This should never happen, but who knows. Make sure enough time
-is left for homework submissions. Make sure to backup your important data that is on that server.
-• You can use scp to move data from that server resp. to that server.
+  - The system runs fail2ban. If you fail to authenticate correctly too many times, your IP will get banned for 24 hours. If you need to get unbanned, send email (urgent cases only).
+  - Any attempt at exploiting the system for the purpose of sending spam, mining bitcoins or “just” hacking the UTEP network or any other purpose which is not related to this class will result in a notice to UTEP and other consequences, which might include you failing this class!
+  - If you f**k up on the system (have a process that takes all memory, uses all CPUs, writes to disc like crazy etc.) but it’s just that you happen to do that inadvertedly, no biggie! Just send email as soon as possible.
+  - Never take the system’s resources for granted. If the computer needs rebooting or there’s a power failure, your data/processes etc. may just go away. This should never happen, but who knows. Make sure enough time is left for homework submissions. Make sure to backup your important data that is on that server.
+  - You can use scp to move data from that server resp. to that server.
 ---
 ## 2 Getting to know the bash shell
-Open a terminal and perform the following on command line. Keep a log of your commands and the answers you got
-back; this will provide you a basis for the write-up you turn in for this assignment.
+Open a terminal and perform the following on command line. Keep a log of your commands and the answers you got back; this will provide you a basis for the write-up you turn in for this assignment.
 1. Using ssh, log into the remote system dandelion on dandelion.cs.utep.edu.
 2. On that system find out
-• how many users are logged in concurrently with you,
-• how long the system is already running since last rebooted,
-• what processors it has,
-• how much RAM is available.
-3. On dandelion or a private Linux installation, open the file nanpa using less. The file contains quite a
-comprehensive list of North American phone number prefixes (first 6 digits, excluding +1), followed by the
-location this phone number prefix is attached to. For example, for 915220, the location El Paso TX is
-listed. Still inside less, find the entries for 907519, 503526 and a couple of other phone numbers you know
-in the country, as such your home phone, your parents’ phone, the phone of a loved one etc.
-4. Find out how many lines connecting prefixes to locations are contained in the file nanpa. Which Linux
-command line tool do you use to count lines?
-5. List the first 17 lines of the nanpa file on command line. Also list the last 42 lines of the file. You can use the
-Linux tools head and tail for this task.
+  - how many users are logged in concurrently with you,
+  - how long the system is already running since last rebooted,
+  - what processors it has,
+  - how much RAM is available.
+3. On dandelion or a private Linux installation, open the file nanpa using less. The file contains quite a comprehensive list of North American phone number prefixes (first 6 digits, excluding +1), followed by the location this phone number prefix is attached to. For example, for 915220, the location El Paso TX is listed. Still inside less, find the entries for 907519, 503526 and a couple of other phone numbers you know in the country, as such your home phone, your parents’ phone, the phone of a loved one etc.
+4. Find out how many lines connecting prefixes to locations are contained in the file nanpa. Which Linux command line tool do you use to count lines?
+5. List the first 17 lines of the nanpa file on command line. Also list the last 42 lines of the file. You can use the Linux tools head and tail for this task.
 ---
 ## 3 head and tail
-As seen above, the Linux/UNIX/POSIX head and tail programs allow the beginning resp. the end of a text file to
-be extracted.
+As seen above, the Linux/UNIX/POSIX head and tail programs allow the beginning resp. the end of a text file to be extracted.
 In this section of the homework assignment, you are asked to re-program the Linux head and tail commands.
 Your programs must be written in C and must be based solely on POSIX file-system handling system calls (level-2
 calls). This means, you can use open, close, read and write but calls to fopen, fread or fprintf are
