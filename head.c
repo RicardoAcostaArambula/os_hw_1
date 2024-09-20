@@ -34,7 +34,24 @@ filename & num optionals
 */
 
 #include <stdio.h>
+/*checks if c is a digit */
+int isDigit(char c);
 
 int main(int argc, char **argv){
     return 0;
+}
+/*atoi: convert s to integer*/
+int atoi(char s[]){
+    int i, n, sign;
+    i=0;
+    sign = (s[i]== '-')? -1 : 1;
+    if (s[i]=='+' || s[i]=='-')
+        i++;
+    for (n=0; isDigit(s[i]); i++)
+        n = 10 * n + (s[i] - '0');
+    return sign * n;
+}
+
+int isDigit(char c){
+    return '0' <= c  && c <='9';
 }
