@@ -55,7 +55,6 @@ int main(int argc, char **argv){
         while (numberOfLines > 0){
             /*read from input and at each '\n' new line character prints it to the screen*/
             read_res = read_until_newline(0, buf, sizeof(buf));
-
             if (read_res < ((ssize_t) 0)){
                 /*
                 - print error probably using strerror 
@@ -129,9 +128,11 @@ ssize_t read_until_newline(int fd, char *buf, size_t max_size){
             /*EOF reach*/
             break;
         }
+        buf[total_read++] = ch;
         if( ch=='\n'){
             break;
         }
+
     }
     buf[total_read] = '\0';
     return total_read;
