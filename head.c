@@ -97,7 +97,7 @@ int main(int argc, char **argv){
 }
 
 
-
+/*writes to the screen all that is in buf*/
 ssize_t my_write(int fd, const char *buf, size_t count){
     size_t total_written = 0;
     ssize_t bytes_written;
@@ -116,6 +116,8 @@ ssize_t my_write(int fd, const char *buf, size_t count){
     }
     return total_written;
 } 
+
+/*Reads until it finds a newline character*/
 ssize_t read_until_newline(int fd, char *buf, size_t max_size){
     ssize_t total_read = 0;
     char ch;
