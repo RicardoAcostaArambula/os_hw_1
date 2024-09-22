@@ -34,21 +34,47 @@
 */
 
 #include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 /*functions declarations */
 int isDigit(char c);
 int my_atoi(char s[]);
 int isSame(char value[], char target[]);
+ssize_t my_write(int fd, const char *buf, size_t count);
+ssize_t read_until_newline(int fd, char *buf, size_t max_size);
 
 int main(int argc, char **argv){
+    int numberOfLines, fd;
+    char buf[4096];
+    ssize_t read_res;
+    size_t bytes_read_in;
     /*No file and no option*/
-    int numberOfLines;
-
     if (argc == 1){
         numberOfLines = 10;
+
+        while (numberOfLines > 0){
+            /*read from input and at each '\n' new line character prints it to the screen*/
+            read_res = read_until_newline(0, buf, sizeof(buf));
+
+            if (read_res < ((ssize_t) 0)){
+                /*
+                - print error probably using strerror 
+                - exit the program
+                */
+            }
+            if (read_res == ((ssize_t) 0)){
+                /*we have hit the EOF condition*/
+                break;
+            }
+            bytes_read_in = read_res;
+            /*call write*/
+            my_write(1, buf, bytes_read_in);
+            numberOfLines--;
+        }
+
     } else if (argc == 2){
         /*check that second argument is a file name*/
-    }
-    else if (argc == 3){
+    } else if (argc == 3){
         /* Checking for case = ./head -n 10 */
         char n[] = "-n";
         if (isSame(argv[1], n)){
@@ -71,6 +97,46 @@ int main(int argc, char **argv){
     return 0;
 }
 
+
+
+ssize_t my_write(int fd, const char *buf, size_t count){
+    size_t total_written = 0;
+    ssize_t bytes_written;
+    if (count == ((size_t) 0)) return (ssize_t) 0;
+    while (total_written < count){
+        bytes_written = write(1, buf + total_written, count - total_written);
+        if (bytes_written < ((size_t) 0)) {
+            /*Error*/
+            return bytes_written;
+        }
+        if (bytes_written == ((size_t) 0)){
+            /*Nothing to be written*/
+            return total_written;
+        }
+        total_written+=bytes_written;
+    }
+    return total_written;
+} 
+ssize_t read_until_newline(int fd, char *buf, size_t max_size){
+    ssize_t total_read = 0;
+    char ch;
+    while (total_read < max_size){
+        ssize_t bytes_read = read(fd, &ch, 1);
+        if (bytes_read < ((size_t) 0)){
+            /*Error*/
+            return bytes_read;
+        } else if (bytes_read == ((size_t)0)) {
+            /*EOF reach*/
+            break;
+        }
+        if( ch=='\n'){
+            break;
+        }
+    }
+    buf[total_read] = '\0';
+    return total_read;
+
+}
 
 
 
