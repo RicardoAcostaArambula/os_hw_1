@@ -36,6 +36,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#define BUFFER_SIZE 4096
 /*functions declarations */
 int isDigit(char c);
 int my_atoi(char s[]);
@@ -45,14 +46,14 @@ ssize_t read_until_newline(int fd, char *buf, size_t max_size);
 
 int main(int argc, char **argv){
     int numberOfLines, fd;
-    char buf[4096];
+    char buf[BUFFER_SIZE];
     ssize_t read_res;
     size_t bytes_read_in;
     /*No file and no option*/
     if (argc == 1){
         numberOfLines = 10;
 
-        while (numberOfLines > 0){
+        while (numberOfLines-- > 0){
             /*read from input and at each '\n' new line character prints it to the screen*/
             read_res = read_until_newline(0, buf, sizeof(buf));
             if (read_res < ((ssize_t) 0)){
@@ -68,7 +69,6 @@ int main(int argc, char **argv){
             bytes_read_in = read_res;
             /*call write*/
             my_write(1, buf, bytes_read_in);
-            numberOfLines--;
         }
 
     } else if (argc == 2){
@@ -78,6 +78,25 @@ int main(int argc, char **argv){
         char n[] = "-n";
         if (isSame(argv[1], n)){
             numberOfLines = my_atoi(argv[2]);
+
+            while (numberOfLines-- > 0){
+                /*read from input and at each '\n' new line character prints it to the screen*/
+                read_res = read_until_newline(0, buf, sizeof(buf));
+                if (read_res < ((ssize_t) 0)){
+                    /*
+                    - print error probably using strerror 
+                    - exit the program
+                    */
+                }
+                if (read_res == ((ssize_t) 0)){
+                    /*we have hit the EOF condition*/
+                    break;
+                }
+                bytes_read_in = read_res;
+                /*call write*/
+                my_write(1, buf, bytes_read_in);
+            }
+
         } else {
             /*rise error for invalid input*/
         }
