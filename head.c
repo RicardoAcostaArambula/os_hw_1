@@ -321,24 +321,35 @@ int main(int argc, char **argv){
     } else if (argc == 4){
         /* check for case: 1. ./head filename -n # */
         char n[] = "-n";
+        char *filename;
         /* case when -n goes the third argument */
         if (isSame(argv[2], n)){
             numberOfLines = my_atoi(argv[3]);
-            char *filename = argv[1];
-            fd = open(filename, O_RDONLY);
-            if ( fd < ((ssize_t) 0)){
-                /*Error: something happend openning the file*/
-                fprintf(stderr, "Error: could not open file %s\n", strerror(errno));
-                rc = 1;
-                goto cleanup_and_return;
-            }
-            /* Instructions read from file  the number of lines previously defined*/
-            if ( fd < ((ssize_t) 0)){
-                /*Error: something happend openning the file*/
-                fprintf(stderr, "Error: could not open file %s\n", strerror(errno));
-                rc = 1;
-                goto cleanup_and_return;
-            }
+            filename = argv[1];
+
+        } else if (isSame(argv[1], n)){
+            /* case when ./head -n # filename  */  
+            numberOfLines = my_atoi(argv[2]);
+            filename = argv[3];
+        } else { 
+            printf("write a reasonable order");
+            rc = 1;
+            goto cleanup_and_return;
+        }
+        fd = open(filename, O_RDONLY);
+        if ( fd < ((ssize_t) 0)){
+            /*Error: something happend openning the file*/
+            fprintf(stderr, "Error: could not open file %s\n", strerror(errno));
+            rc = 1;
+            goto cleanup_and_return;
+        }
+        /* Instructions read from file  the number of lines previously defined*/
+        if ( fd < ((ssize_t) 0)){
+            /*Error: something happend openning the file*/
+            fprintf(stderr, "Error: could not open file %s\n", strerror(errno));
+            rc = 1;
+            goto cleanup_and_return;
+        }
             
         /**
          * we are reading while there is still content in the file
@@ -509,13 +520,6 @@ int main(int argc, char **argv){
                     goto cleanup_and_return;
                 }
             }
-
-        } else if (isSame(argv[2], n)){
-            /* case when ./head -n # filename  */  
-
-
-            numberOfLines = my_atoi(argv[3]);
-        }
     }
 
 
