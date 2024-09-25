@@ -350,8 +350,12 @@ int main(int argc, char **argv){
             rc = 1;
             goto cleanup_and_return;
         }
-            
-        /**
+        if (numberOfLines < 0){
+            printf("Cannot handle negative input\n");
+            rc = 1;
+            goto cleanup_and_return;
+        }
+        /** 
          * we are reading while there is still content in the file
          * now we need to process what was store in the buffer
          * 
