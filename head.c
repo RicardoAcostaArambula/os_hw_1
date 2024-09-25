@@ -290,7 +290,6 @@ int main(int argc, char **argv){
 
 
 
-
     } else if (argc == 3){
         /* Checking for case = ./head -n 10 */
         char n[] = "-n";
@@ -322,14 +321,194 @@ int main(int argc, char **argv){
     } else if (argc == 4){
         /* check for case: 1. ./head filename -n # */
         char n[] = "-n";
-        /* case when -n goes the second argument */
+        /* case when -n goes the third argument */
         if (isSame(argv[2], n)){
             numberOfLines = my_atoi(argv[3]);
+            char *filename = argv[1];
+            fd = open(filename, O_RDONLY);
+            if ( fd < ((ssize_t) 0)){
+                /*Error: something happend openning the file*/
+                fprintf(stderr, "Error: could not open file %s\n", strerror(errno));
+                rc = 1;
+                goto cleanup_and_return;
+            }
             /* Instructions read from file  the number of lines previously defined*/
+            if ( fd < ((ssize_t) 0)){
+                /*Error: something happend openning the file*/
+                fprintf(stderr, "Error: could not open file %s\n", strerror(errno));
+                rc = 1;
+                goto cleanup_and_return;
+            }
+            
+        /**
+         * we are reading while there is still content in the file
+         * now we need to process what was store in the buffer
+         * 
+        */
+            while (1){
+                read_res = read(fd, buf, sizeof(buf));
+                if (read_res < ((size_t) 0)){
+                    fprintf(stderr, "error with read(): %s\n", strerror(errno));
+                    rc = 1;
+                    goto cleanup_and_return;
+                }
+                if (read_res == ((size_t) 0)){
+                    break;
+                }
+                if ( all_lines_size == numberOfLines){
+                    break;
+                }
+                bytes_read_in = (size_t) read_res;
+                for(i = (size_t) 0; i < bytes_read_in; i++){
+                    byte = buf[i];
 
 
+                    if (current_line == NULL){
+                        current_line_alloc = (size_t) 1;
+                        ptr = calloc(current_line_alloc, sizeof(char));
+                        if (ptr == NULL){
+                            fprintf(stderr, "Error: could not allocate memory\n");
+                            rc = 1;
+                            goto cleanup_and_return;
+                        }
+                        current_line = (char *) ptr;
+                    } else {
 
+                        if (current_line_size >= current_line_alloc){
 
+                            new_size = current_line_alloc + current_line_alloc;
+                            if (new_size < current_line_alloc){
+                                fprintf(stderr, "Error: cannot handle memory that large\n");
+                                rc = 1;
+                                goto cleanup_and_return;
+                            }
+                            ptr = reallocarray(current_line, new_size, sizeof(char));
+                            if (ptr == NULL){
+                                fprintf(stderr, "Error: could not allocate memory\n");
+                            }
+                            current_line_alloc = new_size;
+                            current_line = ptr;
+                        }
+                    }
+                    current_line[current_line_size] = byte;
+                    current_line_size++;
+
+                    if (byte == '\n'){
+                        if (all_lines == NULL){
+                            all_lines_alloc = (size_t) 1;
+                            ptr = calloc(all_lines_alloc, sizeof(char *));
+                            if (ptr == NULL){
+                                fprintf(stderr, "Error: count not allocate memory\n");
+                                rc = 1;
+                                goto cleanup_and_return;
+                            }
+                            all_lines = (char **) ptr;
+                            ptr = calloc(all_lines_alloc, sizeof(size_t));
+                            if (ptr == NULL){
+                                fprintf(stderr, "Error: count not allocate memory\n");
+                                rc = 1;
+                                goto cleanup_and_return;
+                            }
+                            all_lines_lengths = (size_t *)  ptr;
+                        } else {
+                            if (all_lines_size >= all_lines_alloc) {
+                                new_size = all_lines_alloc + all_lines_alloc;
+                                if (new_size < all_lines_alloc) {
+                                    fprintf(stderr, "Error: cannot handle memory that large\n");
+                                    rc = 1;
+                                    goto cleanup_and_return;
+                                }
+                                ptr = reallocarray(all_lines, new_size, sizeof(char *));
+                                if (ptr == NULL) {
+                                    fprintf(stderr, "Error: could not allocate memory\n");
+                                    return 1;
+                                }
+                                all_lines = (char **) ptr;
+                                ptr = reallocarray(all_lines_lengths, new_size, sizeof(size_t));
+                                if (ptr == NULL) {
+                                    fprintf(stderr, "Error: could not allocate memory\n");
+                                    rc = 1;
+                                    goto cleanup_and_return;
+                                }
+                                all_lines_lengths = (size_t *) ptr;
+                                all_lines_alloc = new_size;
+                            }
+                        }
+                        all_lines[all_lines_size] = current_line;
+                        all_lines_lengths[all_lines_size] = current_line_size;
+                        all_lines_size++;
+                        current_line = NULL;
+                        current_line_size = (size_t) 0;
+                        current_line_alloc = (size_t) 0;
+                    }
+                }
+
+            }
+            /**outside while infinite loop
+             * hanlding the case when line did not end on newline character 
+             * but rather on EOF character
+            */
+
+            if (current_line != NULL) {
+                if (all_lines == NULL) {
+                    all_lines_alloc = (size_t) 1;
+                    ptr = calloc(all_lines_alloc, sizeof(char *));
+                    if (ptr == NULL) {
+                        fprintf(stderr, "Error: could not allocate memory\n");
+                        rc = 1;
+                        goto cleanup_and_return;
+                    }
+                    all_lines = (char **) ptr;
+                    ptr = calloc(all_lines_alloc, sizeof(size_t));
+                    if (ptr == NULL) {
+                        fprintf(stderr, "Error: could not allocate memory\n");
+                        rc = 1;
+                        goto cleanup_and_return;
+                    }
+                    all_lines_lengths = (size_t *) ptr;
+                } else {
+                    if (all_lines_size >= all_lines_alloc) {
+                        new_size = all_lines_alloc + all_lines_alloc;
+                        if (new_size < all_lines_alloc) {
+                            fprintf(stderr, "Error: cannot handle memory that large\n");
+                            rc = 1;
+                            goto cleanup_and_return;
+                        }
+                        ptr = reallocarray(all_lines, new_size, sizeof(char *));
+                        if (ptr == NULL) {
+                            fprintf(stderr, "Error: could not allocate memory\n");
+                            rc = 1;
+                            goto cleanup_and_return;
+                        }
+                        all_lines = (char **) ptr;
+                        ptr = reallocarray(all_lines_lengths, new_size, sizeof(size_t));
+                        if (ptr == NULL) {
+                            fprintf(stderr, "Error: could not allocate memory\n");
+                            rc = 1;
+                            goto cleanup_and_return;
+                        }
+                        all_lines_lengths = (size_t *) ptr;
+                        all_lines_alloc = new_size;
+                    }
+                }
+                all_lines[all_lines_size] = current_line;
+                all_lines_lengths[all_lines_size] = current_line_size;
+                all_lines_size++;
+                current_line = NULL;
+                current_line_size = (size_t) 0;
+                current_line_alloc = (size_t) 0;
+            }
+            /*
+            * You are suppose to have the lines in the array of pointers
+            * now you need to print them. 
+            **/
+            for(i= (size_t) 0; i < numberOfLines; i++){
+                if (my_write(1, all_lines[i], all_lines_lengths[i]) < ((size_t)0)){
+                    fprintf(stderr, "Error with my_write(): %s\n", strerror(errno));
+                    rc = 1;
+                    goto cleanup_and_return;
+                }
+            }
 
         } else if (isSame(argv[2], n)){
             /* case when ./head -n # filename  */  
