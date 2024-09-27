@@ -11,7 +11,9 @@ ssize_t my_write(int fd, const char *buf, size_t count);
 int my_strlen(char c[]);
 int get_number(char* line);
 void get_location(char *line, char *current_location);
-
+/**
+ * Missing items: handle the case when lseek fails on the second argument (file)
+*/
 
 int main(int argc, char **argv){
     int target, rc, fd, length;
@@ -21,12 +23,15 @@ int main(int argc, char **argv){
     filename = "nanpa.txt";
     if (argc == 1){
         /*tool must fail and display a usage message on standard error*/
-
-
-
+        message = "Error: not enough arguments\nUsage: ./findlocation  <number> or ./findlocation  <number> <filename>\n";
+        my_write(2, message, my_strlen(message));
+        rc = 1;
+        goto end;
     } else if (argc == 2){
         /*check that the argument is a valid number and if so we have the number in the target variable*/
         if ((target = my_atoi(argv[1]))<1){
+            message = "Error: invalid number, please enter only digits.\n";
+            my_write(2, message, my_strlen(message));
             rc = 1;
             goto end;
         }
@@ -38,37 +43,32 @@ int main(int argc, char **argv){
             rc = 1;
             goto end;
         }
-        /**File is open now use mmap()*/
-        struct stat struct_block;
-
-        if (fstat(fd, &struct_block)< ((ssize_t) 0)){
+        // /**File is open now use mmap()*/
+        // struct stat struct_block;
+        off_t file_size = lseek(fd, 0, SEEK_END);
+        if (file_size < ((size_t) 0)){
             message = "Error: could not get the file size\n";
             length = my_strlen(message);
-            my_write(1, message, length);
-            close(fd);
+            my_write(2, message, length);
             rc = 1;
             goto end;
         }
-        size_t filesize = struct_block.st_size;
-        char *mappedFile = mmap(NULL, filesize,  PROT_READ, MAP_PRIVATE,fd, 0);
+        char *mappedFile = mmap(NULL, file_size,  PROT_READ, MAP_PRIVATE,fd, 0);
         if (mappedFile == MAP_FAILED){
             message = "Error: could not store the file using mmap\n";
             length = my_strlen(message);
-            my_write(1, message, length);
+            my_write(2, message, length);
             close(fd);
             rc = 1;
             goto end;
         }
         int low, high, middle, current_number;
         char current_location[25];
-        low = 0; high = (filesize-ROW_SIZE);
+        low = 0; high = (file_size-ROW_SIZE);
         while (low <= high){    
             middle = (low+high)/2;
             middle = (middle/ROW_SIZE) * ROW_SIZE;
             current_number = get_number(&mappedFile[middle]);
-            printf("Low: %d, High: %d, Middle: %d, Current Number: %d Target: %d\n", low, high, middle, current_number, target);
-            // printf("current number - target\n");
-            // printf("%d  -   %d\n", current_number, target);
             if (current_number == target){
                 get_location(&mappedFile[middle], current_location);
                 message = "The location is: ";
@@ -81,6 +81,81 @@ int main(int argc, char **argv){
                 low = (middle + ROW_SIZE);
             }
         }
+        if (munmap(mappedFile, file_size) < ((size_t) 0)){
+            message = "Error: an error occurr while using munmap\n";
+            length = my_strlen(message);
+            my_write(2, message, length);
+            close(fd);
+            rc = 1;
+            goto end;
+        }
+        close(fd);
+    } else if (argc == 3){
+        /**
+         * Open the file and repeat the same process as with only the number.
+        */
+        if ((target = my_atoi(argv[1]))<1){
+            message = "Error: invalid number, please enter only digits.\n";
+            my_write(2, message, my_strlen(message));
+            rc = 1;
+            goto end;
+        }
+        filename = argv[2];
+        fd = open(filename, O_RDONLY);
+        if (fd < ((size_t) 0)){
+            message = "Error: could not open file\n";
+            length = my_strlen(message);
+            my_write(1, message, length);
+            rc = 1;
+            goto end;
+        }
+
+        off_t file_size = lseek(fd, 0, SEEK_END);
+        if (file_size < ((size_t) 0)){
+            message = "Error: could not get the file size\n";
+            length = my_strlen(message);
+            my_write(2, message, length);
+            rc = 1;
+            goto end;
+        }
+        char *mappedFile = mmap(NULL, file_size,  PROT_READ, MAP_PRIVATE,fd, 0);
+        if (mappedFile == MAP_FAILED){
+            message = "Error: could not store the file using mmap\n";
+            length = my_strlen(message);
+            my_write(2, message, length);
+            close(fd);
+            rc = 1;
+            goto end;
+        }
+
+        int low, high, middle, current_number;
+        char current_location[25];
+        low = 0; high = (file_size-ROW_SIZE);
+        while (low <= high){    
+            middle = (low+high)/2;
+            middle = (middle/ROW_SIZE) * ROW_SIZE;
+            current_number = get_number(&mappedFile[middle]);
+            if (current_number == target){
+                get_location(&mappedFile[middle], current_location);
+                message = "The location is: ";
+                my_write(1, message, my_strlen(message));
+                my_write(1, current_location, my_strlen(current_location));
+                break;
+            } else if (target < current_number){
+                high = (middle - ROW_SIZE);
+            } else {
+                low = (middle + ROW_SIZE);
+            }
+        }
+        if (munmap(mappedFile, file_size) < ((size_t) 0)){
+            message = "Error: an error occurr while using munmap\n";
+            length = my_strlen(message);
+            my_write(2, message, length);
+            close(fd);
+            rc = 1;
+            goto end;
+        }
+        close(fd);
     }
 end:
     return rc;
@@ -97,10 +172,9 @@ int my_atoi(char s[]){
     if (s[i]=='+' || s[i]=='-')
         i++;
 
-    for (n=0; s[i]!='\0' && i < 6; i++){
+    for (n=0; s[i]!='\0'; i++){
         if (!isDigit(s[i])){
-            /*rise error*/
-            return 1;
+            return -1;
         }
         n = 10 * n + (s[i] - '0');
     }
