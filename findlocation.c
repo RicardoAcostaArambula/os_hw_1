@@ -97,7 +97,7 @@ int my_atoi(char s[]){
     if (s[i]=='+' || s[i]=='-')
         i++;
 
-    for (n=0; s[i]!='\0'; i++){
+    for (n=0; s[i]!='\0' && i < 6; i++){
         if (!isDigit(s[i])){
             /*rise error*/
             return 1;
@@ -165,17 +165,3 @@ void get_location(char *line, char *current_location){
     }
     return;
 }
-
-
-
-/*
-filesize = 160
-
-
-
-low = 
-0-31
-32-63
-64-95
-96-127
-*/
