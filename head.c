@@ -605,7 +605,7 @@ int my_atoi(char s[]){
     for (n=0; s[i]!='\0'; i++){
         if (!isDigit(s[i])){
             /*rise error*/
-
+        
         }
         n = 10 * n + (s[i] - '0');
     }
