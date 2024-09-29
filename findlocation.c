@@ -20,6 +20,7 @@ int main(int argc, char **argv){
     rc = 0;
     char *message;
     char *filename;
+    int found = 0;
     filename = "nanpa.txt";
     if (argc == 1){
         /*tool must fail and display a usage message on standard error*/
@@ -74,6 +75,7 @@ int main(int argc, char **argv){
                 message = "The location is: ";
                 my_write(1, message, my_strlen(message));
                 my_write(1, current_location, my_strlen(current_location));
+                found = 1;
                 break;
             } else if (target < current_number){
                 high = (middle - ROW_SIZE);
@@ -140,6 +142,7 @@ int main(int argc, char **argv){
                 message = "The location is: ";
                 my_write(1, message, my_strlen(message));
                 my_write(1, current_location, my_strlen(current_location));
+                found = 1;
                 break;
             } else if (target < current_number){
                 high = (middle - ROW_SIZE);
@@ -158,6 +161,11 @@ int main(int argc, char **argv){
         close(fd);
     }
 end:
+    if (!found){
+        message = "Number was not found\n";
+        length = my_strlen(message);
+        my_write(2, message, length);
+    }
     return rc;
 }
 
@@ -195,7 +203,7 @@ ssize_t my_write(int fd, const char *buf, size_t count){
     ssize_t bytes_written;
     if (count == ((size_t) 0)) return (ssize_t) 0;
     while (total_written < count){
-        bytes_written = write(1, buf + total_written, count - total_written);
+        bytes_written = write(fd, buf + total_written, count - total_written);
         if (bytes_written < ((size_t) 0)) {
             /*Error*/
             return bytes_written;
