@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-
 #define BUFFER_SIZE 4096
 /*functions declarations */
 int isDigit(char c);
@@ -67,7 +66,7 @@ int main(int argc, char **argv){
         fd = open(filename, O_RDONLY);
         if ( fd < ((ssize_t) 0)){
             /*Error: something happend openning the file*/
-            message = "Error: could not open file %s\n";
+            message = "Error: could not open file\n";
             length = my_strlen(message);
             my_write(2, message, length);
             close(fd);
@@ -301,6 +300,13 @@ int main(int argc, char **argv){
         char n[] = "-n";
         if (isSame(argv[1], n)){
             numberOfLines = my_atoi(argv[2]);
+            if (numberOfLines < 0){
+                message = "Error: invalid input format\n";
+                length = my_strlen(message);
+                my_write(2, message, length);
+                rc = 1;
+                goto cleanup_and_return;
+            }
 
             while (numberOfLines-- > 0){
                 /*read from input and at each '\n' new line character prints it to the screen*/
@@ -371,7 +377,7 @@ int main(int argc, char **argv){
             goto cleanup_and_return;
         }
         if (numberOfLines < 0){
-            message = "Cannot handle negative input\n";
+            message = "Error: invalid input\n";
             length = my_strlen(message);
             my_write(2, message, length);
             close(fd);
@@ -677,8 +683,7 @@ ssize_t read_until_newline(int fd, char *buf, size_t max_size){
 
 /*my_atoi: convert s to integer*/
 int my_atoi(char s[]){
-    char *message;
-    int i, n, sign, length;
+    int i, n, sign;
     i=0;
     sign = (s[i]== '-')? -1 : 1;
     if (s[i]=='+' || s[i]=='-')
@@ -686,9 +691,6 @@ int my_atoi(char s[]){
 
     for (n=0; s[i]!='\0'; i++){
         if (!isDigit(s[i])){
-            message = "Error: it is not a valid digit\n";
-            length = my_strlen(message);
-            my_write(2, message, length);
             return -1;
         }
         n = 10 * n + (s[i] - '0');
