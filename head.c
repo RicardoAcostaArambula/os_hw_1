@@ -284,7 +284,7 @@ int main(int argc, char **argv){
 
         for(i = (size_t) 0; i < 10; i++){
             if (my_write(1, all_lines[i], all_lines_lengths[i]) < ((size_t)0)){
-                message = "Error with my_write(): %s\n";
+                message = "Error with my_write():\n";
                 length = my_strlen(message);
                 my_write(2, message, length);
                 close(fd);
