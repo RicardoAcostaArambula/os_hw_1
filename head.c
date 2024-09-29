@@ -62,7 +62,7 @@ int main(int argc, char **argv){
     ssize_t reading_result;
     size_t bytes_read_in, i;
     size_t current_line_size, current_line_alloc, new_size;
-    size_t all_lines_size, all_lines_alloc;
+    size_t size_of_all_lines, all_lines_alloc;
     void *ptr;
     size_t *all_lines_lengths;
 
@@ -71,7 +71,7 @@ int main(int argc, char **argv){
     current_line_alloc = (size_t) 0;
     all_lines = NULL;
     all_lines_lengths = NULL;
-    all_lines_size = (size_t) 0;
+    size_of_all_lines = (size_t) 0;
     all_lines_alloc = (size_t) 0;
     numberOfLines = 10;
     rc = 0;
@@ -129,7 +129,7 @@ int main(int argc, char **argv){
             if (reading_result == ((size_t) 0)){
                 break;
             }
-            if ( all_lines_size == 10){
+            if ( size_of_all_lines == 10){
                 break;
             }
             bytes_read_in = (size_t) reading_result;
@@ -203,7 +203,7 @@ int main(int argc, char **argv){
                         }
                         all_lines_lengths = (size_t *)  ptr;
                     } else {
-                        if (all_lines_size >= all_lines_alloc) {
+                        if (size_of_all_lines >= all_lines_alloc) {
                             new_size = all_lines_alloc + all_lines_alloc;
                             if (new_size < all_lines_alloc) {
                                 message = "Error: cannot handle memory that large\n";
@@ -236,9 +236,9 @@ int main(int argc, char **argv){
                             all_lines_alloc = new_size;
                         }
                     }
-                    all_lines[all_lines_size] = current_line;
-                    all_lines_lengths[all_lines_size] = current_line_size;
-                    all_lines_size++;
+                    all_lines[size_of_all_lines] = current_line;
+                    all_lines_lengths[size_of_all_lines] = current_line_size;
+                    size_of_all_lines++;
                     current_line = NULL;
                     current_line_size = (size_t) 0;
                     current_line_alloc = (size_t) 0;
@@ -275,7 +275,7 @@ int main(int argc, char **argv){
                 }
                 all_lines_lengths = (size_t *) ptr;
             } else {
-                if (all_lines_size >= all_lines_alloc) {
+                if (size_of_all_lines >= all_lines_alloc) {
                     new_size = all_lines_alloc + all_lines_alloc;
                     if (new_size < all_lines_alloc) {
                         message = "Error: cannot handle memory that large\n";
@@ -308,9 +308,9 @@ int main(int argc, char **argv){
                     all_lines_alloc = new_size;
                 }
             }
-            all_lines[all_lines_size] = current_line;
-            all_lines_lengths[all_lines_size] = current_line_size;
-            all_lines_size++;
+            all_lines[size_of_all_lines] = current_line;
+            all_lines_lengths[size_of_all_lines] = current_line_size;
+            size_of_all_lines++;
             current_line = NULL;
             current_line_size = (size_t) 0;
             current_line_alloc = (size_t) 0;
@@ -433,7 +433,7 @@ int main(int argc, char **argv){
                 if (reading_result == ((size_t) 0)){
                     break;
                 }
-                if ( all_lines_size == numberOfLines){
+                if ( size_of_all_lines == numberOfLines){
                     break;
                 }
                 bytes_read_in = (size_t) reading_result;
@@ -506,7 +506,7 @@ int main(int argc, char **argv){
                             }
                             all_lines_lengths = (size_t *)  ptr;
                         } else {
-                            if (all_lines_size >= all_lines_alloc) {
+                            if (size_of_all_lines >= all_lines_alloc) {
                                 new_size = all_lines_alloc + all_lines_alloc;
                                 if (new_size < all_lines_alloc) {
                                     message = "Error: cannot handle memory that large\n";
@@ -539,9 +539,9 @@ int main(int argc, char **argv){
                                 all_lines_alloc = new_size;
                             }
                         }
-                        all_lines[all_lines_size] = current_line;
-                        all_lines_lengths[all_lines_size] = current_line_size;
-                        all_lines_size++;
+                        all_lines[size_of_all_lines] = current_line;
+                        all_lines_lengths[size_of_all_lines] = current_line_size;
+                        size_of_all_lines++;
                         current_line = NULL;
                         current_line_size = (size_t) 0;
                         current_line_alloc = (size_t) 0;
@@ -578,7 +578,7 @@ int main(int argc, char **argv){
                     }
                     all_lines_lengths = (size_t *) ptr;
                 } else {
-                    if (all_lines_size >= all_lines_alloc) {
+                    if (size_of_all_lines >= all_lines_alloc) {
                         new_size = all_lines_alloc + all_lines_alloc;
                         if (new_size < all_lines_alloc) {
                             message = "Error: cannot handle memory that large\n";
@@ -611,9 +611,9 @@ int main(int argc, char **argv){
                         all_lines_alloc = new_size;
                     }
                 }
-                all_lines[all_lines_size] = current_line;
-                all_lines_lengths[all_lines_size] = current_line_size;
-                all_lines_size++;
+                all_lines[size_of_all_lines] = current_line;
+                all_lines_lengths[size_of_all_lines] = current_line_size;
+                size_of_all_lines++;
                 current_line = NULL;
                 current_line_size = (size_t) 0;
                 current_line_alloc = (size_t) 0;
@@ -640,7 +640,7 @@ cleanup_and_return:
         free(current_line);
     }
     if (all_lines != NULL){
-        for (i=(size_t)0; i < all_lines_size; i++){
+        for (i=(size_t)0; i < size_of_all_lines; i++){
             free(all_lines[i]);
         }
         free(all_lines);
