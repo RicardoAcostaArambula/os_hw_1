@@ -22,7 +22,7 @@ int main(int argc, char **argv){
     char byte;
     char buf[BUFFER_SIZE];
     ssize_t reading_result;
-    size_t bytes_read_in, i;
+    size_t bytes_read, i;
     size_t current_line_size, current_line_alloc, new_size;
     size_t size_of_all_lines, all_lines_alloc;
     void *ptr;
@@ -54,9 +54,9 @@ int main(int argc, char **argv){
                 /*we have hit the EOF condition*/
                 break;
             }
-            bytes_read_in = reading_result;
+            bytes_read = reading_result;
             /*call write*/
-            my_write(1, buf, bytes_read_in);
+            my_write(1, buf, bytes_read);
         }
 
     } else if (argc == 2){
@@ -94,8 +94,8 @@ int main(int argc, char **argv){
             if ( size_of_all_lines == 10){
                 break;
             }
-            bytes_read_in = (size_t) reading_result;
-            for(i = (size_t) 0; i < bytes_read_in; i++){
+            bytes_read = (size_t) reading_result;
+            for(i = (size_t) 0; i < bytes_read; i++){
                 byte = buf[i];
 
 
@@ -323,9 +323,9 @@ int main(int argc, char **argv){
                     /*we have hit the EOF condition*/
                     break;
                 }
-                bytes_read_in = reading_result;
+                bytes_read = reading_result;
                 /*call write*/
-                my_write(1, buf, bytes_read_in);
+                my_write(1, buf, bytes_read);
             }
 
         } else {
@@ -404,8 +404,8 @@ int main(int argc, char **argv){
                 if ( size_of_all_lines == numberOfLines){
                     break;
                 }
-                bytes_read_in = (size_t) reading_result;
-                for(i = (size_t) 0; i < bytes_read_in; i++){
+                bytes_read = (size_t) reading_result;
+                for(i = (size_t) 0; i < bytes_read; i++){
                     byte = buf[i];
 
 
