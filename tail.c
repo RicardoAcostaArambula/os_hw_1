@@ -24,6 +24,52 @@ void display_error(const char *operation, const char *filename){
     write(STDERR_FILENO, "\n", 1);
 }
 
+
+int read_from_pipe(int fd, int num_lines) {
+    char buffer[BUFFER_SIZE];
+    int line_count = 0;
+    int read_size;
+    int total_size = 0;
+    char *file_content = NULL;
+    
+    // Read the entire input into memory
+    while ((read_size = read(fd, buffer, BUFFER_SIZE)) > 0) {
+        file_content = realloc(file_content, total_size + read_size);
+        if (!file_content) {
+            display_error("memory allocation", "");
+            return -1;
+        }
+        memcpy(file_content + total_size, buffer, read_size);
+        total_size += read_size;
+    }
+    //If read failed
+    if (read_size == -1) {
+        free(file_content);
+        display_error("reading input", "");
+        return -1;
+    }
+    //Process content from end to get last lines
+    for (int i = total_size - 1; i >= 0 && line_count < num_lines; i--) {
+        if (file_content[i] == '\n') {
+            line_count++;
+        }
+    }
+    //Print the last num_lines
+    int start_pos = total_size;
+    for (int i = 0; i < total_size && line_count >= 0; i++) {
+        if (file_content[i] == '\n') {
+            line_count--;
+            start_pos = i + 1;
+            if (line_count == 0) {
+                break;
+            }
+        }
+    }
+    write(STDOUT_FILENO, file_content + start_pos, total_size - start_pos);
+    free(file_content);
+    return 0;
+}
+
 int read_last_lines(int fd, int num_lines) {
     char buffer[BUFFER_SIZE];
     int line_count = 0;
@@ -65,10 +111,13 @@ int read_last_lines(int fd, int num_lines) {
     return 0;
 }
 
+
 int main(int argc, char *argv[]) {
     int lines_to_print = DEFAULT_LINE_COUNT;
     int file_index = -1;
     int fd;
+    struct stat file_info;
+
     //Parse arguments for -n option and filename
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-n") == 0 && i + 1 < argc) {
@@ -81,7 +130,7 @@ int main(int argc, char *argv[]) {
             file_index = i;
         }
     }
-    //Open the file if specified
+    //Open file if specified
     if (file_index != -1) {
         fd = open(argv[file_index], O_RDONLY);
         if (fd == -1) {
@@ -91,12 +140,25 @@ int main(int argc, char *argv[]) {
     } else {
         fd = STDIN_FILENO;
     }
-    //Execute tail operation
-    if (read_last_lines(fd, lines_to_print) == -1) {
-        if (file_index != -1) close(fd);
+    //Check if fd is a regular file or a pipe
+    if (fstat(fd, &file_info) == -1) {
+        display_error("fstat", "");
         return 1;
     }
-    //Closes the file
+    if (S_ISREG(file_info.st_mode)) {
+        //Regular file
+        if (read_last_lines(fd, lines_to_print) == -1) {
+            if (file_index != -1) close(fd);
+            return 1;
+        }
+    } else {
+        //Pipe 
+        if (read_from_pipe(fd, lines_to_print) == -1) {
+            if (file_index != -1) close(fd);
+            return 1;
+        }
+    }
+    //Close file
     if (file_index != -1) close(fd);
 
     return 0;
