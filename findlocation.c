@@ -286,7 +286,6 @@ int main(int argc, char **argv){
                 middle = (low+high)/2;
                 current_number = get_number(all_lines[middle]);
                 if (current_number == target){
-                    printf("I was reached\n");
                     get_location(all_lines[middle], current_location);
                     message = "The location is: ";
                     my_write(1, message, my_strlen(message));
