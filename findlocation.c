@@ -57,7 +57,7 @@ int main(int argc, char **argv){
             display_error_message(message, length);
             rc = 1;
             goto end;
-        }
+        } 
         char *mappedFile = mmap(NULL, file_size,  PROT_READ, MAP_PRIVATE,fd, 0);
         if (mappedFile == MAP_FAILED){
             message = "Error: could not store the file using mmap\n";
@@ -67,7 +67,6 @@ int main(int argc, char **argv){
             rc = 1;
             goto end;
         }
-
         /**performs binary search*/
         int low, high, middle, current_number;
         char current_location[25];
