@@ -386,8 +386,7 @@ int main(int argc, char **argv){
         }
         /** 
          * we are reading while there is still content in the file
-         * now we need to process what was store in the buffer
-         * 
+         * now it process what was store in the buffer
         */
             while (1){
                 reading_result = read(fd, buf, sizeof(buf));
@@ -518,8 +517,8 @@ int main(int argc, char **argv){
                 }
 
             }
-            /**outside while infinite loop
-             * hanlding the case when line did not end on newline character 
+            /**outside while loop
+             * Now it is handling the case when line did not end on newline character 
              * but rather on EOF character
             */
 
@@ -588,8 +587,7 @@ int main(int argc, char **argv){
                 current_line_alloc = (size_t) 0;
             }
             /*
-            * You are suppose to have the lines in the array of pointers
-            * now you need to print them. 
+            * Lines are stored in the array of pointers, now it is printing them.
             **/
             for(i= (size_t) 0; i < numberOfLines; i++){
                 if (my_write(1, all_lines[i], all_lines_lengths[i]) < ((size_t)0)){
